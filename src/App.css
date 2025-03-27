@@ -1,0 +1,253 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+
+.split-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.left-panel {
+    background-color: #333;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.right-panel {
+    background-color: #444;
+}
+
+
+
+
+.split-line-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.tab-bar::-webkit-scrollbar {
+    height: 4px; /* Adjust the height of the scrollbar */
+}
+
+.tab-bar::-webkit-scrollbar-thumb {
+    background-color: rgba(128, 128, 128, 0.7); /* Gray with some transparency */
+    border-radius: 0px; /* Optional: Rounded corners */
+}
+
+.tab-bar::-webkit-scrollbar-track {
+    background-color: transparent; /* Transparent background for the track */
+}
+
+.tab-bar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.9);
+}
+.tab-bar {
+    display: flex;
+    background-color: #2b2b2b;
+    color: #d4d4d4;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    border-bottom: 1px solid #3e3e3e;
+    padding: 4px 8px;
+        
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    background-color: #2b2b2b;
+    margin-right: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    position: relative;
+        flex-shrink: 0; /* Prevent tabs from shrinking */
+        white-space: nowrap;
+}
+
+.tab:hover {
+    background-color: #3e3e3e;
+}
+
+.tab.active {
+    background-color: #333;
+    border-color: #3e3e3e;
+    border-bottom-color: #333;
+}
+.tab-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    opacity: 0; /* Hide the container by default */
+    transition: opacity 0.2s ease-in-out; /* Add transition for smooth effect */
+}
+
+.tab-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tab-input {
+    width: 100%;
+    background-color: #333;
+    color: #d4d4d4;
+    border: none;
+    outline: none;
+    padding: 4px 8px;
+    font-size: inherit;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.remove-tab-button {
+    margin-left: 8px;
+    border: none;
+    background: transparent;
+    color: #d4d4d4;
+    cursor: pointer;
+    padding: 0.25em;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+
+
+.remove-tab-button:hover{
+  background: #626262;
+
+
+}
+
+.remove-tab-button svg {
+    color: white;
+
+}
+
+.tab:hover .tab-actions {
+  opacity: 1; /* Show the container on hover */
+  background: #3e3e3e;
+}
+.tab-actions svg {
+    cursor: pointer;
+    margin: 0 4px;
+}
+
+
+
+.add-tab-button {
+    background: transparent;
+    color: #d4d4d4;
+    border: none;
+    margin: 0.25em;
+    cursor: pointer;
+    padding: 0.25em;
+    border-radius: 0.25em;
+}
+
+.add-tab-button:hover {
+  background: #626262;
+
+}
+
+.code-editor-container {
+    display: flex;
+    height: 100%;
+    position: relative; /* Add this to position the line numbers */
+  }
+  
+  .line-numbers-container {
+    background-color: #222; /* Darker background for line numbers */
+    color: #666; /* Light gray for line numbers */
+    padding: 15px 10px;
+    text-align: right; /* Align numbers to the right */
+    user-select: none;
+    font-size: 16px;
+    width: 20px;
+    font-family: 'Space Mono', monospace;
+  }
+  
+  .code-editor {
+    background-color: #222;
+    position: absolute;
+    color: #fff;
+    resize: none;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 20px;
+    flex-grow: 1; /* Allow the code editor to take up remaining space */
+    font-family: 'Space Mono', monospace;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    outline: none;
+    z-index: 1;
+  }
+  .code-editor-syntax{
+    font-family: 'Space Mono', monospace;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 20px;
+    position: relative;
+    height: 100%;
+    z-index: 0;
+  }
+  .code-editor-wrapper{
+    position: relative;
+    height: 100%;
+    width: 100%;
+
+    
+  }
+
+.split-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 10px;
+    cursor: ew-resize;
+}
+
+
+
+
+
+
+
+.result-panel {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.more-vertical-icon{
+  opacity: 0.5;
+
+}
+
+.split-line-container .more-vertical-icon{
+    margin: 0 2px;
+}
+
+
+
