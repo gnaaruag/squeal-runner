@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeftToLine, ArrowRightFromLine, MoreVertical, Plus, X } from "lucide-react";
+import {
+  ArrowLeftToLine,
+  ArrowRightFromLine,
+  MoreVertical,
+  Plus,
+  X,
+} from "lucide-react";
 import "./App.css";
 import CodeEditor from "./components/CodeEditor";
 import Navbar from "./components/Navbar";
@@ -10,6 +16,22 @@ interface Tab {
   code: string;
 }
 
+const defaultTabs: Tab[] = [
+  { id: "tab-1", title: "Readme.md", code: "SELECT * FROM my_table;" },
+  { id: "tab-2", title: "query-one", code: "SELECT * FROM airlogs;" },
+  {
+    id: "tab-3",
+    title: "query-two",
+    code: "SELECT * FROM airlogs WHERE flight_duration > 2;",
+  },
+  { id: "tab-4", title: "query-three", code: "SELECT * from users;" },
+  {
+    id: "tab-5",
+    title: "query-four",
+    code: "SELECT * from ufotable;",
+  },
+];
+
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const defaultContent = "SELECT * FROM my_table;";
@@ -17,19 +39,23 @@ function App() {
   const [tabs, setTabs] = useState<Tab[]>(() => {
     const storedTabs = localStorage.getItem("tabs");
     if (storedTabs) {
-      const parsedTabs = JSON.parse(storedTabs) as Tab[];
-      return parsedTabs.length > 0 ? parsedTabs : [{ id: "tab-1", title: "Tab 1", code: defaultContent }];
+      try {
+        const parsed = JSON.parse(storedTabs);
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultTabs;
+      } catch {
+        return defaultTabs;
+      }
     }
-    return [{ id: "tab-1", title: "Tab 1", code: defaultContent }];
+    return defaultTabs;
   });
 
   const [activeTab, setActiveTab] = useState<string>(() => {
     const storedActiveTab = localStorage.getItem("activeTab");
-    const tabs = localStorage.getItem("tabs") ? (JSON.parse(localStorage.getItem("tabs")!) as Tab[]) : [];
-    if (storedActiveTab && tabs.find(t => t.id === storedActiveTab)) {
-      return storedActiveTab;
-    }
-    return "tab-1";
+    const storedTabs = localStorage.getItem("tabs");
+    const tabs = storedTabs ? (JSON.parse(storedTabs) as Tab[]) : defaultTabs;
+    return storedActiveTab && tabs.some((t) => t.id === storedActiveTab)
+      ? storedActiveTab
+      : tabs[0].id;
   });
 
   const [splitPosition, setSplitPosition] = useState(50);
@@ -45,8 +71,8 @@ function App() {
     return stored ? stored === "dark" : true;
   });
 
-  const [editorMode, setEditorMode] = useState<'normal' | 'vim'>(() => {
-    return (localStorage.getItem("editorMode") as 'normal' | 'vim') || "normal";
+  const [editorMode, setEditorMode] = useState<"normal" | "vim">(() => {
+    return (localStorage.getItem("editorMode") as "normal" | "vim") || "normal";
   });
 
   useEffect(() => {
@@ -68,29 +94,42 @@ function App() {
 
   const addTab = useCallback(() => {
     const newTabId = `tab-${Date.now()}`;
-    setTabs((prev) => [...prev, { id: newTabId, title: `Tab ${prev.length + 1}`, code: "" }]);
+    setTabs((prev) => [
+      ...prev,
+      { id: newTabId, title: `Tab ${prev.length + 1}`, code: "" },
+    ]);
     setActiveTab(newTabId);
   }, []);
 
-  const removeTab = useCallback((tabId: string) => {
-    setTabs((prevTabs) => {
-      const newTabs = prevTabs.filter((t) => t.id !== tabId);
-      return newTabs.length ? newTabs : [{ id: "tab-1", title: "Tab 1", code: defaultContent }];
-    });
+  const removeTab = useCallback(
+    (tabId: string) => {
+      setTabs((prevTabs) => {
+        const newTabs = prevTabs.filter((t) => t.id !== tabId);
+        return newTabs.length
+          ? newTabs
+          : [{ id: "tab-1", title: "Tab 1", code: defaultContent }];
+      });
 
-    setActiveTab((prev) => {
-      if (prev === tabId) {
-        const remaining = tabs.filter((t) => t.id !== tabId);
-        return remaining.length ? remaining[0].id : "tab-1";
-      }
-      return prev;
-    });
-  }, [tabs]);
+      setActiveTab((prev) => {
+        if (prev === tabId) {
+          const remaining = tabs.filter((t) => t.id !== tabId);
+          return remaining.length ? remaining[0].id : "tab-1";
+        }
+        return prev;
+      });
+    },
+    [tabs]
+  );
 
-  const handleEditTabTitle = (e: React.ChangeEvent<HTMLInputElement>, tabId: string) => {
+  const handleEditTabTitle = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    tabId: string
+  ) => {
     const newTitle = e.target.value;
     setTabs((prevTabs) =>
-      prevTabs.map((tab) => (tab.id === tabId ? { ...tab, title: newTitle } : tab))
+      prevTabs.map((tab) =>
+        tab.id === tabId ? { ...tab, title: newTitle } : tab
+      )
     );
   };
 
@@ -101,7 +140,15 @@ function App() {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging || !containerRef.current) return;
       const container = containerRef.current.getBoundingClientRect();
-      const newPos = Math.max(0, Math.min(100, ((e.clientX - container.left - tabBarWidth) / (container.width - tabBarWidth)) * 100));
+      const newPos = Math.max(
+        0,
+        Math.min(
+          100,
+          ((e.clientX - container.left - tabBarWidth) /
+            (container.width - tabBarWidth)) *
+            100
+        )
+      );
       setSplitPosition(newPos);
     };
     const handleMouseUp = () => setIsDragging(false);
@@ -130,10 +177,12 @@ function App() {
   }, [resizingSidebar]);
 
   const updateCode = (tabId: string, newCode: string) => {
-    setTabs((prev) => prev.map((tab) => (tab.id === tabId ? { ...tab, code: newCode } : tab)));
+    setTabs((prev) =>
+      prev.map((tab) => (tab.id === tabId ? { ...tab, code: newCode } : tab))
+    );
   };
 
-  const currentTab = tabs.find((t) => t.id === activeTab);
+  const currentTab = tabs.find((t) => t.id === activeTab) ?? tabs[0];
 
   return (
     <>
@@ -145,12 +194,19 @@ function App() {
       />
 
       <div className="split-container" ref={containerRef}>
-        <div className="vertical-tab-bar" style={{ width: isSidebarCollapsed ? "48px" : `${tabBarWidth}px` }}>
+        <div
+          className="vertical-tab-bar"
+          style={{ width: isSidebarCollapsed ? "48px" : `${tabBarWidth}px` }}
+        >
           <button
             className="collapse-toggle"
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           >
-            {isSidebarCollapsed ? <ArrowRightFromLine size={20}/> : <ArrowLeftToLine size={20}/>}
+            {isSidebarCollapsed ? (
+              <ArrowRightFromLine size={20} />
+            ) : (
+              <ArrowLeftToLine size={20} />
+            )}
           </button>
 
           <div className="tab-list">
@@ -160,22 +216,31 @@ function App() {
                 className={`tab ${tab.id === activeTab ? "active" : ""}`}
                 onClick={() => setActiveTab(tab.id)}
               >
-                {editingTabId === tab.id ? (
-                  !isSidebarCollapsed && (
-                    <input
-                      value={tab.title}
-                      onChange={(e) => handleEditTabTitle(e, tab.id)}
-                      onBlur={finishEditTabTitle}
-                      autoFocus
-                    />
-                  )
-                ) : (
-                  !isSidebarCollapsed && (
-                    <span className="tab-title" onDoubleClick={() => setEditingTabId(tab.id)}>{tab.title}</span>
-                  )
-                )}
+                {editingTabId === tab.id
+                  ? !isSidebarCollapsed && (
+                      <input
+                        value={tab.title}
+                        onChange={(e) => handleEditTabTitle(e, tab.id)}
+                        onBlur={finishEditTabTitle}
+                        autoFocus
+                      />
+                    )
+                  : !isSidebarCollapsed && (
+                      <span
+                        className="tab-title"
+                        onDoubleClick={() => setEditingTabId(tab.id)}
+                      >
+                        {tab.title}
+                      </span>
+                    )}
                 {!isSidebarCollapsed && (
-                  <button className="remove-tab-button" onClick={(e) => { e.stopPropagation(); removeTab(tab.id); }}>
+                  <button
+                    className="remove-tab-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeTab(tab.id);
+                    }}
+                  >
                     <X size={14} />
                   </button>
                 )}
@@ -190,7 +255,10 @@ function App() {
           )}
         </div>
 
-        <div className="vertical-resize-handle" onMouseDown={() => setResizingSidebar(true)} />
+        <div
+          className="vertical-resize-handle"
+          onMouseDown={() => setResizingSidebar(true)}
+        />
 
         <div className="left-panel" style={{ width: `${splitPosition}%` }}>
           <div className="code-editor-container">
@@ -212,14 +280,19 @@ function App() {
           onMouseLeave={() => setIsSplitLineHovered(false)}
         >
           <div
-            className={`split-line ${isSplitLineHovered ? "split-line-hovered" : ""}`}
+            className={`split-line ${
+              isSplitLineHovered ? "split-line-hovered" : ""
+            }`}
             onMouseDown={handleMouseDown}
           >
             <MoreVertical size={60} />
           </div>
         </div>
 
-        <div className="right-panel" style={{ width: `${100 - splitPosition}%` }}>
+        <div
+          className="right-panel"
+          style={{ width: `${100 - splitPosition}%` }}
+        >
           <div className="result-panel">Result Panel</div>
         </div>
       </div>
