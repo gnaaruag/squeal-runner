@@ -14,7 +14,6 @@ function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const defaultContent = "SELECT * FROM my_table;";
 
-  // Initialize tabs from localStorage or create a default tab with default SQL content.
   const [tabs, setTabs] = useState<Tab[]>(() => {
     const storedTabs = localStorage.getItem("tabs");
     if (storedTabs) {
@@ -26,17 +25,13 @@ function App() {
     return [{ id: "tab-1", title: "Tab 1", code: defaultContent }];
   });
 
-  // Initialize activeTab from localStorage (if it exists and matches a tab), otherwise use the first tab.
   const [activeTab, setActiveTab] = useState<string>(() => {
     const storedActiveTab = localStorage.getItem("activeTab");
-    if (storedActiveTab) {
-      // Check if the stored activeTab exists in the initial tabs array.
-      const initialTabs = localStorage.getItem("tabs")
-        ? (JSON.parse(localStorage.getItem("tabs") as string) as Tab[])
-        : [];
-      if (initialTabs.find((tab) => tab.id === storedActiveTab)) {
-        return storedActiveTab;
-      }
+    const tabs = localStorage.getItem("tabs")
+      ? (JSON.parse(localStorage.getItem("tabs")!) as Tab[])
+      : [];
+    if (storedActiveTab && tabs.find((t) => t.id === storedActiveTab)) {
+      return storedActiveTab;
     }
     return "tab-1";
   });
@@ -46,40 +41,35 @@ function App() {
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [isSplitLineHovered, setIsSplitLineHovered] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const stored = localStorage.getItem('theme');
-    return stored ? stored === 'dark' : true; // default to dark
+    const stored = localStorage.getItem("theme");
+    return stored ? stored === "dark" : true;
   });
-  
-  const [editorMode, setEditorMode] = useState<'normal' | 'vim'>(() => {
-    return (localStorage.getItem('editorMode') as 'normal' | 'vim') || 'normal';
+  const [editorMode, setEditorMode] = useState<"normal" | "vim">(() => {
+    return (localStorage.getItem("editorMode") as "normal" | "vim") || "normal";
   });
-  
-  // Save to localStorage when they change
-  useEffect(() => {
-    document.body.className = isDarkMode ? 'dark' : 'light';
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
-  
-  useEffect(() => {
-    localStorage.setItem('editorMode', editorMode);
-  }, [editorMode]);
-  
 
-  // Persist tabs to localStorage whenever they change.
+  useEffect(() => {
+    document.body.className = isDarkMode ? "dark" : "light";
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
+  useEffect(() => {
+    localStorage.setItem("editorMode", editorMode);
+  }, [editorMode]);
+
   useEffect(() => {
     localStorage.setItem("tabs", JSON.stringify(tabs));
   }, [tabs]);
 
-  // Persist activeTab to localStorage whenever it changes.
   useEffect(() => {
     localStorage.setItem("activeTab", activeTab);
   }, [activeTab]);
 
   const addTab = useCallback(() => {
     const newTabId = `tab-${Date.now()}`;
-    setTabs((prevTabs) => [
-      ...prevTabs,
-      { id: newTabId, title: `Tab ${prevTabs.length + 1}`, code: "" },
+    setTabs((prev) => [
+      ...prev,
+      { id: newTabId, title: `Tab ${prev.length + 1}`, code: "" },
     ]);
     setActiveTab(newTabId);
   }, []);
@@ -87,23 +77,22 @@ function App() {
   const removeTab = useCallback(
     (tabId: string) => {
       setTabs((prevTabs) => {
-        const newTabs = prevTabs.filter((tab) => tab.id !== tabId);
-        // If all tabs are removed, create a fallback default tab.
+        const newTabs = prevTabs.filter((t) => t.id !== tabId);
         if (newTabs.length === 0) {
           return [{ id: "tab-1", title: "Tab 1", code: defaultContent }];
         }
         return newTabs;
       });
-      // If the removed tab was active, switch to the first remaining tab.
-      setActiveTab((prevActive) => {
-        if (prevActive === tabId) {
-          const remainingTabs = tabs.filter((tab) => tab.id !== tabId);
-          return remainingTabs.length > 0 ? remainingTabs[0].id : "tab-1";
+
+      setActiveTab((prev) => {
+        if (prev === tabId) {
+          const remaining = tabs.filter((t) => t.id !== tabId);
+          return remaining.length ? remaining[0].id : "tab-1";
         }
-        return prevActive;
+        return prev;
       });
     },
-    [tabs, defaultContent]
+    [tabs]
   );
 
   const handleEditTabTitle = (
@@ -128,7 +117,10 @@ function App() {
       const container = containerRef.current.getBoundingClientRect();
       const newPos = Math.max(
         0,
-        Math.min(100, ((e.clientX - container.left) / container.width) * 100)
+        Math.min(
+          100,
+          ((e.clientX - container.left - 180) / (container.width - 180)) * 100
+        )
       );
       setSplitPosition(newPos);
     };
@@ -144,18 +136,15 @@ function App() {
   }, [isDragging]);
 
   const updateCode = (tabId: string, newCode: string) => {
-    setTabs((prevTabs) =>
-      prevTabs.map((tab) =>
-        tab.id === tabId ? { ...tab, code: newCode } : tab
-      )
+    setTabs((prev) =>
+      prev.map((tab) => (tab.id === tabId ? { ...tab, code: newCode } : tab))
     );
   };
 
-  // Find the currently active tab.
-  const currentTab = tabs.find((tab) => tab.id === activeTab);
+  const currentTab = tabs.find((t) => t.id === activeTab);
 
   return (
-    <div>
+    <>
       <Navbar
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
@@ -163,78 +152,80 @@ function App() {
         setEditorMode={setEditorMode}
       />
       <div className="split-container" ref={containerRef}>
-      <div className="left-panel" style={{ width: `${splitPosition}%` }}>
-        <div className="tab-bar">
-          {tabs.map((tab) => (
-            <div
-              key={tab.id}
-              className={`tab ${activeTab === tab.id ? "active" : ""}`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {editingTabId === tab.id ? (
-                <input
-                  value={tab.title}
-                  onChange={(e) => handleEditTabTitle(e, tab.id)}
-                  onBlur={finishEditTabTitle}
-                  autoFocus
-                />
-              ) : (
-                <span onDoubleClick={() => setEditingTabId(tab.id)}>
-                  {tab.title}
-                </span>
-              )}
-              <button
-                className="remove-tab-button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeTab(tab.id);
-                }}
+        <div className="vertical-tab-bar">
+          <div className="tab-list">
+            {tabs.map((tab) => (
+              <div
+                key={tab.id}
+                className={`tab ${tab.id === activeTab ? "active" : ""}`}
+                onClick={() => setActiveTab(tab.id)}
               >
-                <X size={16} color="#fff" />
-              </button>
-            </div>
-          ))}
+                {editingTabId === tab.id ? (
+                  <input
+                    value={tab.title}
+                    onChange={(e) => handleEditTabTitle(e, tab.id)}
+                    onBlur={finishEditTabTitle}
+                    autoFocus
+                  />
+                ) : (
+                  <span onDoubleClick={() => setEditingTabId(tab.id)}>
+                    {tab.title}
+                  </span>
+                )}
+                <button
+                  className="remove-tab-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeTab(tab.id);
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
           <button className="add-tab-button" onClick={addTab}>
-            <Plus size={16} />
+            <Plus size={18} />
           </button>
         </div>
-        <div className="code-editor-container">
-          {currentTab && (
-            <CodeEditor
-            key={currentTab.id}
-            code={currentTab.code}
-            onChange={(newCode) => updateCode(currentTab.id, newCode)}
-            isDarkMode={isDarkMode}
-            editorMode={editorMode}
-          />
-          
-          
-          
-          )}
-        </div>
-      </div>
 
-      <div
-        className="split-line-container"
-        onMouseEnter={() => setIsSplitLineHovered(true)}
-        onMouseLeave={() => setIsSplitLineHovered(false)}
-      >
+        <div className="left-panel" style={{ width: `${splitPosition}%` }}>
+          <div className="code-editor-container">
+            {currentTab && (
+              <CodeEditor
+                key={currentTab.id}
+                code={currentTab.code}
+                onChange={(newCode) => updateCode(currentTab.id, newCode)}
+                isDarkMode={isDarkMode}
+                editorMode={editorMode}
+              />
+            )}
+          </div>
+        </div>
+
         <div
-          className={`split-line ${
-            isSplitLineHovered ? "split-line-hovered" : ""
-          }`}
-          onMouseDown={handleMouseDown}
+          className="split-line-container"
+          onMouseEnter={() => setIsSplitLineHovered(true)}
+          onMouseLeave={() => setIsSplitLineHovered(false)}
         >
-          <MoreVertical size={60} />
+          <div
+            className={`split-line ${
+              isSplitLineHovered ? "split-line-hovered" : ""
+            }`}
+            onMouseDown={handleMouseDown}
+          >
+            <MoreVertical size={60} />
+          </div>
+        </div>
+
+        <div
+          className="right-panel"
+          style={{ width: `${100 - splitPosition}%` }}
+        >
+          <div className="result-panel">Result Panel</div>
         </div>
       </div>
-
-      <div className="right-panel" style={{ width: `${100 - splitPosition}%` }}>
-        <div className="result-panel">Result Panel</div>
-      </div>
-    </div>
-    </div>
-    
+    </>
   );
 }
 
