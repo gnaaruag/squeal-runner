@@ -1,0 +1,95 @@
+/* Base styling shared across both themes */
+.navbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: var(--navbar-bg);
+	color: var(--navbar-text);
+	padding: 10px 20px;
+	border-bottom: 1px solid var(--navbar-border);
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+}
+
+.navbar-left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.logo {
+	height: 32px;
+	width: 32px;
+}
+
+.title {
+	font-family: 'Poppins', sans-serif;
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--navbar-text);
+}
+
+.navbar-right {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--icon-color);
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.2s;
+}
+
+.theme-toggle:hover {
+	color: var(--icon-hover-color);
+}
+
+/* Editor mode dropdown */
+.editor-mode-dropdown {
+	padding: 6px 10px;
+	font-size: 14px;
+	border-radius: 6px;
+	border: 1px solid var(--dropdown-border);
+	background-color: var(--dropdown-bg);
+	color: var(--dropdown-text);
+	outline: none;
+	transition: background-color 0.2s, color 0.2s;
+}
+
+.editor-mode-dropdown:hover {
+	background-color: var(--dropdown-hover-bg);
+}
+
+/* === Theme Variables === */
+body.dark {
+	--navbar-bg: #1e1e1e;
+	--navbar-text: #ffffff;
+	--navbar-border: #333;
+	--icon-color: #ffffff;
+	--icon-hover-color: #facc15;
+	--dropdown-bg: #2a2a2a;
+	--dropdown-hover-bg: #3a3a3a;
+	--dropdown-border: #444;
+	--dropdown-text: #ffffff;
+}
+
+body.light {
+	--navbar-bg: #ffffff;
+	--navbar-text: #1a1a1a;
+	--navbar-border: #e2e2e2;
+	--icon-color: #1a1a1a;
+	--icon-hover-color: #007acc;
+	--dropdown-bg: #f9f9f9;
+	--dropdown-hover-bg: #eeeeee;
+	--dropdown-border: #ccc;
+	--dropdown-text: #1a1a1a;
+}
