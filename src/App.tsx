@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar";
 import table1Data from "./data/table1.json";
 import table2Data from "./data/table2.json";
 import DataTable from "./components/DataTable";
+import { readme_text, tab1, tab2, tab3, tab4, tab5 } from "./consts/TabContent";
 
 interface Tab {
   id: string;
@@ -21,20 +22,28 @@ interface Tab {
 }
 
 const defaultTabs: Tab[] = [
-  { id: "tab-1", title: "Readme.md", code: "SELECT * FROM my_table;" },
-  { id: "tab-2", title: "query-one", code: "SELECT * FROM airlogs;" },
+  { id: "tab-1", title: "Readme.md", code: readme_text },
+  { id: "tab-2", title: "Airlogs - All", code: tab1 },
   {
     id: "tab-3",
-    title: "query-two",
-    code: "SELECT * FROM airlogs WHERE flight_duration > 2;",
+    title: "Airlogs Filter",
+    code: tab2,
   },
-  { id: "tab-4", title: "query-three", code: "SELECT * from users;" },
-  { id: "tab-5", title: "query-four", code: "SELECT * from ufotable;" },
+  { id: "tab-4", title: "Users - All", code: tab3 },
+  {
+    id: "tab-5",
+    title: "Users Filter",
+    code: tab4,
+  },
+  {
+    id: "tab-6",
+    title: "Error Display",
+    code: tab5,
+  },
 ];
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
-
   const [tabs, setTabs] = useState<Tab[]>(() => {
     try {
       const stored = localStorage.getItem("tabs");
@@ -44,7 +53,6 @@ function App() {
       return defaultTabs;
     }
   });
-
   const [activeTab, setActiveTab] = useState<string>(() => {
     const storedActive = localStorage.getItem("activeTab");
     const storedTabs = localStorage.getItem("tabs");
@@ -55,8 +63,6 @@ function App() {
       ? storedActive
       : parsedTabs[0].id;
   });
-
-  // Layout states
   const [splitPosition, setSplitPosition] = useState(50);
   const [tabBarWidth, setTabBarWidth] = useState(180);
   const [resizingSidebar, setResizingSidebar] = useState(false);
@@ -64,33 +70,24 @@ function App() {
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [isSplitLineHovered, setIsSplitLineHovered] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
-  // Query result (table rows or error)
   const [result, setResult] = useState<any>(null);
-
-  // Theme toggles
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const stored = localStorage.getItem("theme");
     return stored ? stored === "dark" : true;
   });
-
-  // Editor mode
   const [editorMode, setEditorMode] = useState<"normal" | "vim">(() => {
     return (localStorage.getItem("editorMode") as "normal" | "vim") || "normal";
   });
 
-  // Apply theme
   useEffect(() => {
     document.body.className = isDarkMode ? "dark" : "light";
     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
   }, [isDarkMode]);
 
-  // Save editor mode
   useEffect(() => {
     localStorage.setItem("editorMode", editorMode);
   }, [editorMode]);
 
-  // Persist tabs & active tab
   useEffect(() => {
     localStorage.setItem("tabs", JSON.stringify(tabs));
   }, [tabs]);
@@ -99,7 +96,6 @@ function App() {
     localStorage.setItem("activeTab", activeTab);
   }, [activeTab]);
 
-  // Creating a new tab
   const addTab = useCallback(() => {
     const newTabId = `tab-${Date.now()}`;
     setTabs((prev) => [
@@ -109,14 +105,12 @@ function App() {
     setActiveTab(newTabId);
   }, []);
 
-  // Removing a tab
   const removeTab = useCallback(
     (tabId: string) => {
       setTabs((prevTabs) => {
         const newTabs = prevTabs.filter((t) => t.id !== tabId);
         return newTabs.length > 0 ? newTabs : defaultTabs;
       });
-
       setActiveTab((prev) => {
         if (prev === tabId) {
           const remaining = tabs.filter((t) => t.id !== tabId);
@@ -128,7 +122,6 @@ function App() {
     [tabs]
   );
 
-  // Editing tab title
   const handleEditTabTitle = (
     e: React.ChangeEvent<HTMLInputElement>,
     tabId: string
@@ -143,7 +136,6 @@ function App() {
 
   const finishEditTabTitle = () => setEditingTabId(null);
 
-  // Draggable split line
   const handleMouseDown = () => setIsDragging(true);
 
   useEffect(() => {
@@ -162,7 +154,6 @@ function App() {
       setSplitPosition(newPos);
     };
     const handleMouseUp = () => setIsDragging(false);
-
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
     return () => {
@@ -171,7 +162,6 @@ function App() {
     };
   }, [isDragging, tabBarWidth]);
 
-  // Resizing sidebar
   useEffect(() => {
     const handleSidebarResize = (e: MouseEvent) => {
       if (!resizingSidebar || !containerRef.current) return;
@@ -180,7 +170,6 @@ function App() {
       setTabBarWidth(newWidth);
     };
     const stopSidebarResize = () => setResizingSidebar(false);
-
     document.addEventListener("mousemove", handleSidebarResize);
     document.addEventListener("mouseup", stopSidebarResize);
     return () => {
@@ -189,30 +178,37 @@ function App() {
     };
   }, [resizingSidebar]);
 
-  // Update the code in the editor
   const updateCode = (tabId: string, newCode: string) => {
     setTabs((prev) =>
       prev.map((tab) => (tab.id === tabId ? { ...tab, code: newCode } : tab))
     );
   };
 
-  // Run Query => sets 'result' to your data array or an error
   const runQuery = () => {
-    if (activeTab === "tab-2" || activeTab === "tab-3") {
-      // Use the 'columns' array from table1Data
+    if (activeTab === "tab-2") {
       setResult(table1Data.columns);
+    } else if (activeTab === "tab-3") {
+      const filtered = table1Data.columns.filter(
+        (row: any) => row.airport_code === "SHS"
+      );
+      setResult(filtered);
     } else if (activeTab === "tab-4") {
-      // Use the 'columns' array from table2Data
       setResult(table2Data.columns);
     } else if (activeTab === "tab-5") {
-      // error
+      const filtered = table2Data.columns.filter(
+        (row: any) => row.language === "Sindhi"
+      );
+      setResult(filtered);
+    } else if (activeTab === "tab-6") {
       setResult({ error: "Query failed: Table not found." });
     } else {
-      setResult(null);
+      const filtered = table2Data.columns.filter(
+        (row: any) => row.language === "Uyghur"
+      );
+      setResult(filtered.slice(0, Math.floor(Math.random() * (17 - 3 + 1)) + 3));
     }
   };
 
-  // Keydown listener for Ctrl+Enter
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === "Enter") {
@@ -224,8 +220,35 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeTab]);
 
-  // Current tab
   const currentTab = tabs.find((t) => t.id === activeTab) ?? tabs[0];
+
+  function exportToCSV(data: any[], filename = "export.csv") {
+    if (!Array.isArray(data) || data.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+    const headers = Object.keys(data[0]);
+    const csvRows: string[] = [];
+    csvRows.push(headers.join(","));
+    for (const row of data) {
+      const values = headers.map((header) => {
+        const val = row[header] ?? "";
+        if (String(val).includes(",") || String(val).includes('"')) {
+          return `"${String(val).replace(/"/g, '""')}"`;
+        }
+        return String(val);
+      });
+      csvRows.push(values.join(","));
+    }
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <>
@@ -237,7 +260,6 @@ function App() {
       />
 
       <div className="split-container" ref={containerRef}>
-        {/* == Sidebar (tabs) == */}
         <div
           className="vertical-tab-bar"
           style={{ width: isSidebarCollapsed ? "48px" : `${tabBarWidth}px` }}
@@ -260,25 +282,23 @@ function App() {
                 className={`tab ${tab.id === activeTab ? "active" : ""}`}
                 onClick={() => setActiveTab(tab.id)}
               >
-                {editingTabId === tab.id ? (
-                  !isSidebarCollapsed && (
-                    <input
-                      value={tab.title}
-                      onChange={(e) => handleEditTabTitle(e, tab.id)}
-                      onBlur={finishEditTabTitle}
-                      autoFocus
-                    />
-                  )
-                ) : (
-                  !isSidebarCollapsed && (
-                    <span
-                      className="tab-title"
-                      onDoubleClick={() => setEditingTabId(tab.id)}
-                    >
-                      {tab.title}
-                    </span>
-                  )
-                )}
+                {editingTabId === tab.id
+                  ? !isSidebarCollapsed && (
+                      <input
+                        value={tab.title}
+                        onChange={(e) => handleEditTabTitle(e, tab.id)}
+                        onBlur={finishEditTabTitle}
+                        autoFocus
+                      />
+                    )
+                  : !isSidebarCollapsed && (
+                      <span
+                        className="tab-title"
+                        onDoubleClick={() => setEditingTabId(tab.id)}
+                      >
+                        {tab.title}
+                      </span>
+                    )}
                 {!isSidebarCollapsed && (
                   <button
                     className="remove-tab-button"
@@ -301,13 +321,11 @@ function App() {
           )}
         </div>
 
-        {/* == Sidebar resize handle == */}
         <div
           className="vertical-resize-handle"
           onMouseDown={() => setResizingSidebar(true)}
         />
 
-        {/* == Left panel (Editor) == */}
         <div className="left-panel" style={{ width: `${splitPosition}%` }}>
           <div className="code-editor-container">
             {currentTab && (
@@ -327,36 +345,51 @@ function App() {
           </div>
         </div>
 
-        {/* == Middle Split line == */}
         <div
           className="split-line-container"
           onMouseEnter={() => setIsSplitLineHovered(true)}
           onMouseLeave={() => setIsSplitLineHovered(false)}
         >
           <div
-            className={`split-line ${isSplitLineHovered ? "split-line-hovered" : ""}`}
+            className={`split-line ${
+              isSplitLineHovered ? "split-line-hovered" : ""
+            }`}
             onMouseDown={handleMouseDown}
           >
             <MoreVertical size={60} />
           </div>
         </div>
 
-        {/* == Right panel (Results) == */}
-        <div className="right-panel" style={{ width: `${100 - splitPosition}%` }}>
+        <div
+          className="right-panel"
+          style={{ width: `${100 - splitPosition}%` }}
+        >
           <div className="result-panel">
             {result ? (
               result.error ? (
-                <div style={{ color: "red" }}>{result.error}</div>
+                <div className="error-message">{result.error}</div>
               ) : (
-                // Pass the .columns array to DataTable
                 <DataTable data={result} />
               )
             ) : (
-              "Result Panel"
+              <div className="placeholder-message">
+                Run any query to see the result here
+              </div>
             )}
           </div>
           <div className="result-footer">
-            <button className="export-button">Export CSV ⎙</button>
+            <button
+              className="export-button"
+              onClick={() => {
+                if (Array.isArray(result)) {
+                  exportToCSV(result, "queryResult.csv");
+                } else {
+                  alert("No valid data to export!");
+                }
+              }}
+            >
+              Export CSV ⎙
+            </button>
           </div>
         </div>
       </div>

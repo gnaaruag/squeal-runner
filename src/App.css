@@ -233,3 +233,37 @@ body {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
+
+.default {
+  padding: 2em;
+  margin-top: 2em;
+}
+
+/* If you want a cohesive look with your table,
+   you can define these in your .result-panel or general classes. */
+
+/* The default message or placeholder */
+.placeholder-message {
+  padding: 1rem;
+  margin: 1rem;
+  color: #ccc; /* or var(--text) in dark mode */
+  background-color: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  text-align: center;
+  font-size: 15px;
+  /* Possibly add a subtle box-shadow? */
+}
+
+/* Error message style */
+.error-message {
+  padding: 1rem;
+  margin: 1rem;
+  color: #ff5b5b;
+  background-color: rgba(255,0,0,0.1);
+  border: 1px solid rgba(255,0,0,0.2);
+  border-radius: 4px;
+  font-size: 15px;
+  text-align: center;
+  /* Optional: a mild shake or icon? */
+}
