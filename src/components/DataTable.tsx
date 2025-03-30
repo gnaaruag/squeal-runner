@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-table';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 
-import './datatable.css';
+import './DataTable.css';
 
 type GenericRow = Record<string, any>;
 
