@@ -1,7 +1,10 @@
+// App.tsx
+
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   ArrowLeftToLine,
   ArrowRightFromLine,
+  CornerDownLeft,
   MoreVertical,
   Plus,
   X,
@@ -9,6 +12,7 @@ import {
 import "./App.css";
 import CodeEditor from "./components/CodeEditor";
 import Navbar from "./components/Navbar";
+import { readme_text, tab1, tab2, tab3, tab4 } from "./consts/TabContent";
 
 interface Tab {
   id: string;
@@ -17,44 +21,35 @@ interface Tab {
 }
 
 const defaultTabs: Tab[] = [
-  { id: "tab-1", title: "Readme.md", code: "SELECT * FROM my_table;" },
-  { id: "tab-2", title: "query-one", code: "SELECT * FROM airlogs;" },
+  { id: "tab-1", title: "Readme.md", code: readme_text },
+  { id: "tab-2", title: "query-one", code: tab1 },
   {
     id: "tab-3",
     title: "query-two",
-    code: "SELECT * FROM airlogs WHERE flight_duration > 2;",
+    code: tab2,
   },
-  { id: "tab-4", title: "query-three", code: "SELECT * from users;" },
-  {
-    id: "tab-5",
-    title: "query-four",
-    code: "SELECT * from ufotable;",
-  },
+  { id: "tab-4", title: "query-three", code: tab3 },
+  { id: "tab-5", title: "query-four", code: tab4 },
 ];
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const defaultContent = "SELECT * FROM my_table;";
-
   const [tabs, setTabs] = useState<Tab[]>(() => {
-    const storedTabs = localStorage.getItem("tabs");
-    if (storedTabs) {
-      try {
-        const parsed = JSON.parse(storedTabs);
-        return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultTabs;
-      } catch {
-        return defaultTabs;
-      }
+    try {
+      const stored = localStorage.getItem("tabs");
+      const parsed = stored ? JSON.parse(stored) : [];
+      return parsed.length > 0 ? parsed : defaultTabs;
+    } catch {
+      return defaultTabs;
     }
-    return defaultTabs;
   });
 
   const [activeTab, setActiveTab] = useState<string>(() => {
-    const storedActiveTab = localStorage.getItem("activeTab");
+    const storedActive = localStorage.getItem("activeTab");
     const storedTabs = localStorage.getItem("tabs");
     const tabs = storedTabs ? (JSON.parse(storedTabs) as Tab[]) : defaultTabs;
-    return storedActiveTab && tabs.some((t) => t.id === storedActiveTab)
-      ? storedActiveTab
+    return storedActive && tabs.some((t) => t.id === storedActive)
+      ? storedActive
       : tabs[0].id;
   });
 
@@ -105,15 +100,13 @@ function App() {
     (tabId: string) => {
       setTabs((prevTabs) => {
         const newTabs = prevTabs.filter((t) => t.id !== tabId);
-        return newTabs.length
-          ? newTabs
-          : [{ id: "tab-1", title: "Tab 1", code: defaultContent }];
+        return newTabs.length > 0 ? newTabs : defaultTabs;
       });
 
       setActiveTab((prev) => {
         if (prev === tabId) {
           const remaining = tabs.filter((t) => t.id !== tabId);
-          return remaining.length ? remaining[0].id : "tab-1";
+          return remaining.length ? remaining[0].id : defaultTabs[0].id;
         }
         return prev;
       });
@@ -121,15 +114,10 @@ function App() {
     [tabs]
   );
 
-  const handleEditTabTitle = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    tabId: string
-  ) => {
+  const handleEditTabTitle = (e: React.ChangeEvent<HTMLInputElement>, tabId: string) => {
     const newTitle = e.target.value;
     setTabs((prevTabs) =>
-      prevTabs.map((tab) =>
-        tab.id === tabId ? { ...tab, title: newTitle } : tab
-      )
+      prevTabs.map((tab) => (tab.id === tabId ? { ...tab, title: newTitle } : tab))
     );
   };
 
@@ -145,8 +133,7 @@ function App() {
         Math.min(
           100,
           ((e.clientX - container.left - tabBarWidth) /
-            (container.width - tabBarWidth)) *
-            100
+            (container.width - tabBarWidth)) * 100
         )
       );
       setSplitPosition(newPos);
@@ -203,9 +190,9 @@ function App() {
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           >
             {isSidebarCollapsed ? (
-              <ArrowRightFromLine size={20} />
+              <ArrowRightFromLine size={20} stroke="currentColor" />
             ) : (
-              <ArrowLeftToLine size={20} />
+              <ArrowLeftToLine size={20} stroke="currentColor" />
             )}
           </button>
 
@@ -272,6 +259,9 @@ function App() {
               />
             )}
           </div>
+          <div className="editor-footer">
+            <button className="run-button">Run (CTRL {" "} <CornerDownLeft size={15}/>)</button>
+          </div>
         </div>
 
         <div
@@ -289,11 +279,11 @@ function App() {
           </div>
         </div>
 
-        <div
-          className="right-panel"
-          style={{ width: `${100 - splitPosition}%` }}
-        >
+        <div className="right-panel" style={{ width: `${100 - splitPosition}%` }}>
           <div className="result-panel">Result Panel</div>
+          <div className="result-footer">
+          <button className="run-button">Export to CSV (Alt {"  + S "})</button>
+          </div>
         </div>
       </div>
     </>
