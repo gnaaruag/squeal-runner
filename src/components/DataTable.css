@@ -1,0 +1,104 @@
+/* A fallback for when there's no data */
+.no-data {
+	padding: 1rem;
+	color: #888;
+  }
+  
+  /* The root container for the entire table component */
+  .rt-container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	font-size: 14px;
+	color: var(--text);
+	overflow: hidden; /* no extra scroll except within rows-container */
+  }
+  
+  /* The header row area */
+  .header-row {
+	flex-shrink: 0; /* doesn't shrink when container resizes */
+  }
+  
+  /* Each header-group row (we may have only one in many cases).
+	 The 'gridTemplateColumns' is set inline in DataTable.tsx. */
+  .header-row-inner {
+	display: grid;
+	align-items: center;
+	border-bottom: 1px solid #333;
+	transition: background-color 0.2s;
+  }
+  
+  /* Container for the virtualized rows. 
+	 Occupies leftover space to fill vertical height. */
+  .rows-container {
+	flex: 1;
+	overflow: auto; /* The main scroll area for react-window */
+  }
+  
+  /* Each row: displayed as a grid */
+  .grid-row {
+	display: grid;
+	align-items: center;
+	border-bottom: 1px solid #333;
+	transition: background-color 0.2s;
+  }
+  
+  /* Even/odd row striping for improved readability */
+  .even-row {
+	background-color: var(--row-even-bg);
+  }
+  .odd-row {
+	background-color: var(--row-odd-bg);
+  }
+  
+  /* The grid cells for both header and data rows */
+  .grid-cell {
+	border-right: 1px solid #333;
+	padding: 8px 12px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+  }
+  
+  /* Remove right border on the last column */
+  .grid-cell:last-child {
+	border-right: none;
+  }
+  
+  /* Header cells */
+  .header-cell {
+	font-weight: bold;
+	/* Optionally smaller or uppercase:
+	   text-transform: uppercase;
+	   font-size: 12px; */
+  }
+  
+  /* JSON or multiline cells */
+  .json-cell {
+	margin: 0;
+	white-space: pre-wrap;
+	font-family: 'Fira Code', monospace;
+  }
+  
+  /* Row hover effect (optional) */
+  .grid-row:hover .grid-cell {
+	background-color: #222;
+  }
+  
+  /* 
+	 If you're toggling dark/light mode, define these variables 
+	 in your top-level <body> or .dark/.light classes. For example:
+  */
+  body.dark {
+	--text: #fff;
+	--row-even-bg: #111; 
+	--row-odd-bg: #161616; 
+  }
+  
+  body.light {
+	--text: #222;
+	--row-even-bg: #f8f8f8; 
+	--row-odd-bg: #eeeeee;
+  }
+  

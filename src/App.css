@@ -101,7 +101,8 @@ body {
 }
 
 .add-tab-button {
-  margin: 6px auto;
+  margin: 1.5em auto 1.5em auto;
+  padding-top: 1.25em;
   background: transparent;
   border: none;
   font-size: 18px;
@@ -110,6 +111,10 @@ body {
   border-top: 2px solid var(--panel-border);
   width: 100%;
   padding: 8px 0;
+}
+
+.add-tab-button:hover {
+  background-color: var(--tab-active-bg);
 }
 
 /* --- Collapse Toggle --- */
@@ -181,7 +186,7 @@ body {
   border-top: 1px solid var(--panel-border);
   background-color: var(--tab-bg);
   z-index: 5;
-  margin-bottom: 2em;
+  padding-bottom: 1.5em;
 }
 
 .run-button,
@@ -191,7 +196,8 @@ body {
   border: none;
   cursor: pointer;
   background-color: var(--hover-color);
-  color: white;
+  color: black;
+  font-weight: 600;
   border-radius: 4px;
   display: flex;
   justify-content: center;
