@@ -41,11 +41,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
 
-  // Compartments to dynamically reconfigure theme and keymaps
   const themeCompartment = useRef(new Compartment());
   const keymapCompartment = useRef(new Compartment());
 
-  // Initial EditorView setup
   useEffect(() => {
     if (!editorRef.current) return;
 
@@ -77,13 +75,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     });
 
     viewRef.current = view;
-
     return () => {
       view.destroy();
     };
   }, []);
 
-  // Reconfigure theme on dark mode change
   useEffect(() => {
     const view = viewRef.current;
     if (view) {
@@ -95,7 +91,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     }
   }, [isDarkMode]);
 
-  // Reconfigure Vim mode
   useEffect(() => {
     const view = viewRef.current;
     if (view) {
@@ -107,7 +102,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     }
   }, [editorMode]);
 
-  // Sync external code updates
   useEffect(() => {
     const view = viewRef.current;
     if (view && code !== view.state.doc.toString()) {
@@ -124,6 +118,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   return (
     <div
       ref={editorRef}
+      role="textbox"
+      aria-multiline="true"
+      aria-label="SQL Code Editor"
       style={{
         height: '100%',
         width: '100%',

@@ -202,10 +202,7 @@ function App() {
     } else if (activeTab === "tab-6") {
       setResult({ error: "Query failed: Table not found." });
     } else {
-      const filtered = table2Data.columns.filter(
-        (row: any) => row.language === "Uyghur"
-      );
-      setResult(filtered.slice(0, Math.floor(Math.random() * (17 - 3 + 1)) + 3));
+      setResult(null);
     }
   };
 
@@ -266,6 +263,11 @@ function App() {
         >
           <button
             className="collapse-toggle"
+            aria-label={
+              isSidebarCollapsed
+                ? "Expand sidebar"
+                : "Collapse sidebar"
+            }
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           >
             {isSidebarCollapsed ? (
@@ -281,6 +283,7 @@ function App() {
                 key={tab.id}
                 className={`tab ${tab.id === activeTab ? "active" : ""}`}
                 onClick={() => setActiveTab(tab.id)}
+                aria-label={`Activate tab ${tab.title}`}
               >
                 {editingTabId === tab.id
                   ? !isSidebarCollapsed && (
@@ -306,6 +309,7 @@ function App() {
                       e.stopPropagation();
                       removeTab(tab.id);
                     }}
+                    aria-label={`Close tab ${tab.title}`}
                   >
                     <X size={14} />
                   </button>
@@ -315,7 +319,11 @@ function App() {
           </div>
 
           {!isSidebarCollapsed && (
-            <button className="add-tab-button" onClick={addTab}>
+            <button
+              className="add-tab-button"
+              onClick={addTab}
+              aria-label="Create new tab"
+            >
               <Plus size={18} />
             </button>
           )}
@@ -324,9 +332,13 @@ function App() {
         <div
           className="vertical-resize-handle"
           onMouseDown={() => setResizingSidebar(true)}
+          aria-label="Resize sidebar"
         />
 
-        <div className="left-panel" style={{ width: `${splitPosition}%` }}>
+        <div
+          className="left-panel"
+          style={{ width: `${splitPosition}%` }}
+        >
           <div className="code-editor-container">
             {currentTab && (
               <CodeEditor
@@ -339,7 +351,11 @@ function App() {
             )}
           </div>
           <div className="editor-footer">
-            <button className="run-button" onClick={runQuery}>
+            <button
+              className="run-button"
+              onClick={runQuery}
+              aria-label="Run query (Ctrl + Enter)"
+            >
               Run (Ctrl + Enter)
             </button>
           </div>
@@ -355,6 +371,7 @@ function App() {
               isSplitLineHovered ? "split-line-hovered" : ""
             }`}
             onMouseDown={handleMouseDown}
+            aria-label="Resize editor and result panel"
           >
             <MoreVertical size={60} />
           </div>
@@ -363,16 +380,22 @@ function App() {
         <div
           className="right-panel"
           style={{ width: `${100 - splitPosition}%` }}
+          aria-label="Result panel"
         >
           <div className="result-panel">
             {result ? (
               result.error ? (
-                <div className="error-message">{result.error}</div>
+                <div className="error-message" aria-live="assertive">
+                  {result.error}
+                </div>
               ) : (
                 <DataTable data={result} />
               )
             ) : (
-              <div className="placeholder-message">
+              <div
+                className="placeholder-message"
+                aria-live="polite"
+              >
                 Run any query to see the result here
               </div>
             )}
@@ -387,6 +410,7 @@ function App() {
                   alert("No valid data to export!");
                 }
               }}
+              aria-label="Export results to CSV"
             >
               Export CSV ⎙
             </button>
