@@ -83,7 +83,7 @@
   
   /* Row hover effect (optional) */
   .grid-row:hover .grid-cell {
-	background-color: #222;
+	background-color: var(--row-hover-bg);
   }
   
   /* 
@@ -94,11 +94,13 @@
 	--text: #fff;
 	--row-even-bg: #111; 
 	--row-odd-bg: #161616; 
+	--row-hover-bg: #222;
   }
   
   body.light {
 	--text: #222;
 	--row-even-bg: #f8f8f8; 
 	--row-odd-bg: #eeeeee;
+	--row-hover-bg: #ddd;
   }
   
