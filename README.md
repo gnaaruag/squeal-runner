@@ -1,54 +1,47 @@
-# React + TypeScript + Vite
+## squeal-runner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+a simple, web-based SQL playground capable of running dummy queries and displaying mock results. this project is built using React and Vite and showcases a split editor layout, tabbed interface, dark/light theming, CSV export, an optional vim style editing and basic query simulation.
 
-Currently, two official plugins are available:
+### overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- multi tabbed code editor with syntax highlighting and code completion
+- a results panel that shows query data or error message and also enables downloading resultant table
+- dark and light mode customization
+- an optional "vim mode" add on to the code editor
 
-## Expanding the ESLint configuration
+Because this is a dummy application, it doesn’t connect to a real database. Instead, we load and display data from JSON files for certain “queries.”
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### frameworks and major dependencies
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- react 18
+- vite
+- code-mirror-v6
+- tanstack/react-table
+- react-window
+- vitejs/plugin-react-swc
+- lucide-react
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### page load time calculation 
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+page load times were taken from the network tab in the browser dev tools
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- the load times came out to be `256ms` for `DOMContentLoaded` and `353ms` for a complete load.
+- these times can be verified from the given screenshot of the devtools
+
+![image](https://github.com/user-attachments/assets/e3a01d11-2687-4297-9a68-915e582837eb)
+
+### performance additions
+
+- to improve overall performance over normal vite builds, i added minification with tersor.
+- i have attached the lighthouse performance metrics below
+- aria labels are also added for accessibility purposes
+- did this for the brownie points: in order to display large amounts of data (17,000+ rows) i utilized virtualization with react-window and tanstack/react-table 
+
+![image](https://github.com/user-attachments/assets/06215e52-d273-4535-9903-29702e5cc4ce)
+
+### application screenshots
+![image](https://github.com/user-attachments/assets/32a3a087-7d00-4af8-94c5-a6b775859891)
+![image](https://github.com/user-attachments/assets/66546425-5217-4317-a960-5766b4e8db4e)
+![image](https://github.com/user-attachments/assets/f62e4627-4f6d-4627-8d3f-e0ee80629f10)
+![image](https://github.com/user-attachments/assets/5b045095-cb08-43b8-9fb4-e4e2b435aef0)
+![image](https://github.com/user-attachments/assets/2d65cda9-d55e-4dd0-a5c6-f3cf18886f74)
